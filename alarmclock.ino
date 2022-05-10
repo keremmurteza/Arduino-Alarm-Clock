@@ -228,16 +228,16 @@ delay (100);
 blinking();
 
 //Timer1 ON
-if (timer1==1 && alarmMode==1 && hh==Start1HH && mm==Start1MM)  {digitalWrite(buzzer, HIGH); delay (500); digitalWrite(buzzer, LOW);}
+if (timer1==1 && alarmMode==1 && hh==Start1HH && mm==Start1MM)  {digitalWrite(buzzer, HIGH);}
 
 //Timer2 ON
-if (timer2==1 && alarmMode==1 && hh==Start2HH && mm==Start2MM)  {digitalWrite(buzzer, HIGH); delay (500); digitalWrite(buzzer, LOW);}
+if (timer2==1 && alarmMode==1 && hh==Start2HH && mm==Start2MM)  {digitalWrite(buzzer, HIGH);}
 
 //Timer3 ON
-if (timer3==1 && alarmMode==1 && hh==Start3HH && mm==Start3MM)  {digitalWrite(buzzer, HIGH); delay (500); digitalWrite(buzzer, LOW);}
+if (timer3==1 && alarmMode==1 && hh==Start3HH && mm==Start3MM)  {digitalWrite(buzzer, HIGH);}
 
 //Timer4 ON
-if (timer4==1 && alarmMode==1 && hh==Start4HH && mm==Start4MM)  {digitalWrite(buzzer, HIGH); delay (500); digitalWrite(buzzer, LOW);}
+if (timer4==1 && alarmMode==1 && hh==Start4HH && mm==Start4MM)  {digitalWrite(buzzer, HIGH);}
 
 }
 
