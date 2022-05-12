@@ -33,17 +33,28 @@ int timer1, timer2, timer3, timer4;
 int stop =0, mode=0, flag=0;
 
 void setup(){
+
+Serial.begin(9600);
+while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
+  SD.begin();
+  Serial.print("Initializing SD card...");
+  if (!SD.begin(10)) {
+    Serial.println("initialization failed!");
+    while (1);
+  }
+  Serial.println("initialization done.");
+  
+
 rtc.begin();
 
 pinMode(bt_clock, INPUT_PULLUP);
 pinMode(bt_up,    INPUT_PULLUP);
 pinMode(bt_down,  INPUT_PULLUP);
 pinMode(bt_timer, INPUT_PULLUP);
-
 pinMode(buzzer, OUTPUT);
-  Serial.begin(9600);
-  pinMode(10,OUTPUT);
-  myFile=SD.open("test.txt",FILE_WRITE);
+  
   lcd.init();
   lcd.backlight();
   lcd.setCursor(0,0);
@@ -62,9 +73,11 @@ mode=3;WriteEeprom ();delay (20);
 mode=4;WriteEeprom ();delay (20);
 mode=0;
 }
-EEPROM.write(50,0); 
+EEPROM.write(50,0);
+
 
 ReadEeprom();
+
 }
 
 void loop(){  
@@ -130,10 +143,10 @@ yy = t.year,DEC;
   t2h=Start2HH; t2m=Start2MM;
   if (t2h>=hh){ fark2h=(t2h-hh);}
   else{t2h+=24;
-  fark1h=(t2h-hh);}
+  fark2h=(t2h-hh);}
   if (t2m>=mm){ fark2m=(t2m-mm);}
   else{t2m+=60;
-  fark1m=(t2m-mm);}
+  fark2m=(t2m-mm);}
   fark2t=(fark2h*60)+fark2m;
  }
  else{
@@ -149,7 +162,7 @@ yy = t.year,DEC;
   fark3h=(t3h-hh);}
   if (t3m>=mm){ fark3m=(t3m-mm);}
   else{t3m+=60;
-  fark1m=(t3m-mm);}
+  fark3m=(t3m-mm);}
   fark3t=(fark3h*60)+fark3m;
  }
  else{
@@ -185,12 +198,7 @@ if (fark4t<smallest) smallest=fark4t;
  if (smallest==fark2t){yakinh=Start2HH; yakinm=Start2MM;}
  if (smallest==fark3t){yakinh=Start3HH; yakinm=Start3MM;}
  if (smallest==fark4t){yakinh=Start4HH; yakinm=Start4MM;}
- Serial.println("fark1t");
- Serial.println(fark1t);
- Serial.println(fark2t);
- Serial.println(fark3t);
- Serial.println(fark4t);
- if(digitalRead (bt_up) == 1){
+ if(digitalRead (bt_up) == 0 && setMode==0){
    lcd.clear();
  lcd.setCursor(0,0);
  lcd.print("Next Alarm:");
@@ -199,12 +207,13 @@ if (fark4t<smallest) smallest=fark4t;
  lcd.print(":");
  if(yakinm<10) lcd.print("0");
  lcd.print(yakinm);
+ 
   
   }
 
  }
  else{
- if(digitalRead (bt_up) == 1){
+ if(digitalRead (bt_up) == 0 && setMode==0){
    lcd.clear();
  lcd.setCursor(0,0);
  lcd.print("No Alarm");  
@@ -213,11 +222,6 @@ if (fark4t<smallest) smallest=fark4t;
   }
   
   }
-
-
- 
- Serial.println(yakinh);
- Serial.println(yakinm);
   
   }
 
@@ -227,19 +231,21 @@ setTimer();
 delay (100);
 blinking();
 
+
 //Timer1 ON
-if (timer1==1 && alarmMode==1 && hh==Start1HH && mm==Start1MM)  {digitalWrite(buzzer, HIGH);}
+if (timer1==1 && alarmMode==1 && hh==Start1HH && mm==Start1MM)  {digitalWrite(buzzer, HIGH); delay (500); digitalWrite(buzzer, LOW);}
 
 //Timer2 ON
-if (timer2==1 && alarmMode==1 && hh==Start2HH && mm==Start2MM)  {digitalWrite(buzzer, HIGH);}
+if (timer2==1 && alarmMode==1 && hh==Start2HH && mm==Start2MM)  {digitalWrite(buzzer, HIGH); delay (500); digitalWrite(buzzer, LOW);}
 
 //Timer3 ON
-if (timer3==1 && alarmMode==1 && hh==Start3HH && mm==Start3MM)  {digitalWrite(buzzer, HIGH);}
+if (timer3==1 && alarmMode==1 && hh==Start3HH && mm==Start3MM)  {digitalWrite(buzzer, HIGH); delay (500); digitalWrite(buzzer, LOW);}
 
 //Timer4 ON
-if (timer4==1 && alarmMode==1 && hh==Start4HH && mm==Start4MM)  {digitalWrite(buzzer, HIGH);}
+if (timer4==1 && alarmMode==1 && hh==Start4HH && mm==Start4MM)  {digitalWrite(buzzer, HIGH); delay (500); digitalWrite(buzzer, LOW);}
 
 }
+
 
 void blinking (){
 //BLINKING SCREEN
@@ -280,18 +286,18 @@ void setupClock (void) {
     
  if (setAlarm >0){alarmMode=0;}
     
- if(digitalRead (bt_clock) == 1 && flag==0) {flag=1;
+ if(digitalRead (bt_clock) == 0 && flag==0) {flag=1;
  if(setAlarm>0){
-  WriteEeprom(); setAlarm=1; mode =5;}
+  WriteEeprom(); WriteSD(); setAlarm=1; mode =5;}
  else{setMode = setMode+1;}
  }
   
- if(digitalRead (bt_timer) == 1 && flag==0){flag=1;
+ if(digitalRead (bt_timer) == 0 && flag==0){flag=1;
  if(setMode>0){setMode=8;}
   else{
   setAlarm = setAlarm+1;
   if(setAlarm>4){setAlarm=1; 
-  WriteEeprom ();
+  WriteEeprom (); WriteSD();
   mode=mode+1;
   ReadEeprom();
   }
@@ -300,6 +306,7 @@ void setupClock (void) {
   } 
 
     if(setAlarm == 1 && mode==5){
+    lcd.clear();
     lcd.setCursor (0,0);
     lcd.print ("Set Timer Finish");
     lcd.setCursor (0,1);
@@ -310,7 +317,7 @@ void setupClock (void) {
     alarmMode=1;
     }
 
-if(digitalRead (bt_clock) == 0 && digitalRead (bt_timer) == 0){flag=0;}
+if(digitalRead (bt_clock) == 1 && digitalRead (bt_timer) == 1){flag=0;}
   
  if(digitalRead (bt_up) == 0){                          
             if (setAlarm<2 && setMode==1)hh=hh+1; 
@@ -414,7 +421,7 @@ if (setMode == 0 && setAlarm >0 && mode==0){
 }
 
 void ReadEeprom() {
-Start1HH=EEPROM.read(11);Start1MM=EEPROM.read(12); 
+Start1HH=EEPROM.read(11);Start1MM=EEPROM.read(12);   
 Start2HH=EEPROM.read(21);Start2MM=EEPROM.read(22); 
 Start3HH=EEPROM.read(31);Start3MM=EEPROM.read(32); 
 Start4HH=EEPROM.read(41);Start4MM=EEPROM.read(42); 
@@ -431,13 +438,63 @@ timer4=EEPROM.read(4);
 }
 
 void WriteEeprom() {
-if(mode==1){EEPROM.write(11,StartHH);EEPROM.write(12,StartMM); myFile.println("Alarm1:"); myFile.println(Start1HH); myFile.println(Start1MM);}
-if(mode==2){EEPROM.write(21,StartHH);EEPROM.write(22,StartMM); myFile.println("Alarm2:"); myFile.println(Start2HH); myFile.println(Start2MM);}
-if(mode==3){EEPROM.write(31,StartHH);EEPROM.write(32,StartMM); myFile.println("Alarm3:"); myFile.println(Start3HH); myFile.println(Start3MM);}
-if(mode==4){EEPROM.write(41,StartHH);EEPROM.write(42,StartMM); myFile.println("Alarm4:"); myFile.println(Start4HH); myFile.println(Start4MM);}
+if(mode==1){EEPROM.write(11,StartHH);EEPROM.write(12,StartMM);}
+if(mode==2){EEPROM.write(21,StartHH);EEPROM.write(22,StartMM);}
+if(mode==3){EEPROM.write(31,StartHH);EEPROM.write(32,StartMM);}
+if(mode==4){EEPROM.write(41,StartHH);EEPROM.write(42,StartMM);}
 
 EEPROM.write(1,timer1);
 EEPROM.write(2,timer2);
 EEPROM.write(3,timer3);
 EEPROM.write(4,timer4);
+}
+
+void WriteSD(){
+ myFile = SD.open("test.txt", FILE_WRITE);
+ 
+   
+   if(timer1==1){
+if (myFile){
+  myFile.println("Alarm 1:");
+  myFile.print("t1h");
+  }
+   else{Serial.println("dosya açılamadı");}
+   }
+  else{Serial.println("Alarm 1 Kapalı");}
+
+
+
+   if(timer2==1){
+if (myFile){
+  myFile.println("Alarm 2:");
+  myFile.print(t2h);
+  myFile.print(t2m);
+ }
+  else{Serial.println("dosya açılamadı");}
+   }
+  else{Serial.println("Alarm 2 Kapalı");}
+
+     if(timer3==1){
+if (myFile){
+  myFile.println("Alarm 3:");
+  myFile.print(int(t3h));
+  myFile.print(t3m);
+  }
+   else{Serial.println("dosya açılamadı");}
+   }
+  else{Serial.println("Alarm 3 Kapalı");}
+
+     if(timer4==1){
+if (myFile){
+  myFile.println("Alarm 4:");
+  myFile.print(t4h);
+  myFile.print(t4m);
+  
+  }
+  else{Serial.println("dosya açılamadı");}
+   }
+  else{Serial.println("Alarm 4 Kapalı");}
+  
+  Serial.write(myFile.read());
+  myFile.close();
 }
