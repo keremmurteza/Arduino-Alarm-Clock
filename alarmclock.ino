@@ -46,7 +46,6 @@ while (!Serial) {
   }
   Serial.println("initialization done.");
   
-
 rtc.begin();
 
 pinMode(bt_clock, INPUT_PULLUP);
@@ -458,9 +457,9 @@ if (myFile){
   myFile.println("Alarm 1:");
   myFile.print("t1h");
   }
-   else{Serial.println("dosya açılamadı");}
+   else{Serial.println("error opening test.txt");}
    }
-  else{Serial.println("Alarm 1 Kapalı");}
+  else{Serial.println("Alarm 1 is off");}
 
 
 
@@ -470,9 +469,8 @@ if (myFile){
   myFile.print(t2h);
   myFile.print(t2m);
  }
-  else{Serial.println("dosya açılamadı");}
-   }
-  else{Serial.println("Alarm 2 Kapalı");}
+  else{Serial.println("error opening test.txt"
+  else{Serial.println("Alarm 2 is off");}
 
      if(timer3==1){
 if (myFile){
@@ -480,9 +478,9 @@ if (myFile){
   myFile.print(int(t3h));
   myFile.print(t3m);
   }
-   else{Serial.println("dosya açılamadı");}
+   else{Serial.println("error opening test.txt");}
    }
-  else{Serial.println("Alarm 3 Kapalı");}
+  else{Serial.println("Alarm 3 is off");}
 
      if(timer4==1){
 if (myFile){
@@ -491,9 +489,9 @@ if (myFile){
   myFile.print(t4m);
   
   }
-  else{Serial.println("dosya açılamadı");}
+  else{Serial.println("error opening test.txt");}
    }
-  else{Serial.println("Alarm 4 Kapalı");}
+  else{Serial.println("Alarm 4 is off");}
   
   Serial.write(myFile.read());
   myFile.close();
